@@ -1,4 +1,4 @@
-# pc-prctive
+# pc-practive
 
 ## Project setup
 ```
