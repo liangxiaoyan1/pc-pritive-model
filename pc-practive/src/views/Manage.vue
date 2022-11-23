@@ -2,7 +2,7 @@
     <div>
         <el-container>
             <!-- 左边侧边栏 -->
-            <el-aside width="200px">
+            <el-aside width="201px">
                 <div style="height:60px">
                     <h1 class="headerTitle">运营平台</h1>
                 </div>
@@ -16,7 +16,10 @@
             </el-header>
                 <!-- 右侧内容 -->
                 <el-main>
-                    <h1 >头部导航栏</h1>
+                <el-tabs v-model="activeName" editable="true">
+                    <el-tab-pane label="用户管理" name="first">
+                    </el-tab-pane>
+                </el-tabs>
                     <!-- 当前页面 -->
                     <router-view ></router-view>
                 </el-main>
@@ -49,12 +52,7 @@
 }
 .el-main{
    background: rgb(244, 244, 244);
-    h1{
-        background-color: #1890ff;
-            height: 74px;
-            line-height: 74px;
-            padding: 20px;
-    }
+    
 }
 </style>
 <script>
@@ -64,7 +62,7 @@ import Header from '@/components/Header.vue'
 export default {
     data () {
         return {
-            
+            activeName:''
         }
     },
     components: {

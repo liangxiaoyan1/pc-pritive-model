@@ -1,12 +1,11 @@
 <template>
     <el-menu :default-openeds="['2', '2']" 
     router
-    @select="handleSelect"
     >
-      <el-submenu index="/sys">
+      <el-submenu index="1">
         <template slot="title">系统管理</template>
         <el-menu-item-group>
-          <el-menu-item index="/sys/menuConfig">菜单管理</el-menu-item>
+          <el-menu-item index="/menuConfig">菜单管理</el-menu-item>
           <el-menu-item index="1-2">参数管理</el-menu-item>
           <el-menu-item index="1-3">部门管理</el-menu-item>
           <el-menu-item index="1-4">字典管理</el-menu-item>
@@ -14,11 +13,11 @@
           <el-menu-item index="1-6">用户管理</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
-      <el-submenu index="/">
+      <el-submenu index="2">
         <template slot="title">系统监控</template>
         <el-menu-item-group>
-          <el-menu-item index="loginLog">登录日志</el-menu-item>
-          <el-menu-item index="logsRecord">操作日志</el-menu-item>
+          <el-menu-item index="/loginLog">登录日志</el-menu-item>
+          <el-menu-item index="/logsRecord">操作日志</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-submenu index="3">
@@ -30,14 +29,14 @@
       <el-submenu index="4">
         <template slot="title">数据统计</template>
         <el-menu-item-group>
-          <el-menu-item index="4-1">消息推送</el-menu-item>
-          <el-menu-item index="4-2">订单明细</el-menu-item>
+          <el-menu-item index="/msgPush">消息推送</el-menu-item>
+          <el-menu-item index="/orderDetail">订单明细</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
       <el-submenu index="5">
         <template slot="title">服务分配</template>
         <el-menu-item-group>
-          <el-menu-item index="5-1">分配列表</el-menu-item>
+          <el-menu-item index="/service-distribution">分配列表</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
     </el-menu>
@@ -53,9 +52,9 @@
 export default {
     name: 'Aside',
     methods: {
-        handleSelect (index) {
-            console.log(index);
-        }
+        // handleSelect (index) {
+        //     console.log(index);
+        // }
         
     }
 }
