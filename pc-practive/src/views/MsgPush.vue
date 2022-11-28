@@ -3,25 +3,27 @@
         <el-card class="box-card">
             <p class="conten-title">筛选搜索</p>
             <el-form :inline="true" :model="formInline" class="demo-form-inline search-form">
-                <el-form-item label="产品名称/编号"  size="medium">
+                <el-form-item label="产品名称/编号"  size="medium" prop="liveName">
                     <el-input v-model="formInline.liveName" placeholder="请输入产品名称/编号"></el-input>
                 </el-form-item>
-                <el-form-item label="批次号" size="medium">
+                <el-form-item label="批次号" size="medium" prop="anchorName">
                     <el-input v-model="formInline.anchorName" placeholder="请输入批次号"></el-input>
                 </el-form-item>
-                <el-form-item label="客户姓名/客户号"  size="medium">
+                <el-form-item label="客户姓名/客户号"  size="medium" prop="anchorName">
                     <el-input v-model="formInline.anchorName" placeholder="请输入客户姓名/客户号"></el-input>
                 </el-form-item>
-                <el-form-item label="推送方式"  size="medium">
+                <el-form-item label="推送方式"  size="medium" prop="liveTypeName">
                     <el-select v-model="formInline.liveTypeName" placeholder="活动区域">
                         <el-option label="不限" value="shanghai"></el-option>
                         <el-option label="短信" value="beijing"></el-option>
+                        <el-option label="微信" value="beijing"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="推送状态" size="medium">
+                <el-form-item label="推送状态" size="medium" prop="">
                     <el-select v-model="formInline.region" placeholder="活动区域">
                         <el-option label="不限" value="shanghai"></el-option>
                         <el-option label="成功" value="beijing"></el-option>
+                        <el-option label="失败" value="beijing"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="推送时间" prop="liveTimeSlot" >
@@ -40,50 +42,46 @@
 
             <el-button type="primary" plai size="small" @click="handleAdd">批量补发</el-button>
             <br><br>
-            <el-table class="table" :data="tableData" style="width: 100%;height: 100%;"
+            <el-table
+            v-loading="loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+            class="table" :data="tableData" style="width: 100%;height: 100%;"
                 :header-cell-style="{ backgroundColor: '#F5F5F5', textAlign: 'center', }"
                  default-expand-all="true"
                   @selection-change="handleSelectionChange"
                   tooltip-effect="dark">
-            <el-table-column type="selection" width="55">
+            <el-table-column type="selection" width="55" align="center">
             </el-table-column>
-                <el-table-column type="index" label="序号">
+                <el-table-column type="index" label="序号" align="center">
                 </el-table-column>
-                <el-table-column prop="liveName" label="餐品名称" width="200">
+                <el-table-column prop="liveName" label="餐品名称" width="200" align="center">
                 </el-table-column>
-                <el-table-column prop="anchorName" label="产品编号" width="100">
+                <el-table-column prop="anchorName" label="产品编号" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="liveTypeName" label="批次号" width="100">
+                <el-table-column prop="liveTypeName" label="批次号" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="liveTimeSlot" label="直播时间" width="120">
+                <el-table-column prop="liveTimeSlot" label="直播时间" width="120" align="center">
                 </el-table-column>
-                <el-table-column prop="address" label="客户姓名" width="120">
+                <el-table-column prop="address" label="客户姓名" width="120" align="center">
                 </el-table-column>
-                <el-table-column prop="pvUvStr" label="客户号" width="150">
+                <el-table-column prop="pvUvStr" label="客户号" width="150" align="center">
                 </el-table-column>
-                <el-table-column prop="createTime" label="推送方式" width="120">
+                <el-table-column prop="createTime" label="推送方式" width="120" align="center">
                 </el-table-column>
-                <el-table-column  label="推送内容" width="100">
+                <el-table-column  label="推送内容" width="100" align="center">
                 </el-table-column>
-                <el-table-column label="推送状态" width="100">
+                <el-table-column label="推送状态" width="100" align="center">
                 </el-table-column>
-                <el-table-column label="推送时间" width="100">
+                <el-table-column label="推送时间" width="100" align="center">
                 </el-table-column>
-                <el-table-column fixed="right" label="操作" width="100">
+                <el-table-column fixed="right" label="操作" width="100" align="center">
                     <template slot-scope="">
                         <el-button type="primary" size="small">
                             补发
                         </el-button>
-                      
                     </template>
                 </el-table-column>
             </el-table>
-            <div class="block">
-                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                    :current-page="current" :page-sizes="[2, 5, 10, 20]" :page-size="size"
-                    layout="total, sizes, prev, pager, next, jumper" :total="tableData.length" background>
-                </el-pagination>
-            </div>
             <!-- 编辑信息弹窗 -->
             <el-dialog title="编辑" :visible.sync="dialogFormVisible" width="700px">
                 <el-form :model="form" size="mini" label-width="100px" :rules="rules" ref="form" class="dialog-form">
@@ -271,29 +269,18 @@
 <script>
 export default {
     data () {
-        const item = {
-            operContext: '分配人员',
-            operId: '14105',
-            operName: 'admin',
-            operIp: '58.60.191.88',
-            responseTime: 21,
-            os: '',
-            operatorType: '后台用户',
-            operTime: '2022-11-16 14:16:18',
 
-        };
         return {
+            loading: true,
             multipleSelection: [],
             radio: '1',
             dialogFormVisible: false,
-            tableData: Array(5).fill(item),//一共有多少条
+            tableData: '',//一共有多少条
             formInline: {
                 useusernamer: '',
                 time: ''
             },
             value: true,
-            current: 1,//第几页面
-            pageSize: 5,//每一个页面有多少条数
             table: '',
             formInline: {
                 user: '',
@@ -329,6 +316,7 @@ export default {
         submitForm (formName) {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
+                    this.loading = false,
                     alert('submit!');
                 } else {
                     console.log('error submit!!');

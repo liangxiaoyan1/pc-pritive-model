@@ -2,32 +2,34 @@
     <div class="about" style="background: rgb(255, 255, 255);">
         <el-card class="box-card">
             <p class="conten-title">筛选查询</p>
-            <el-form :inline="true" :model="formInline" class="demo-form-inline search-form">
+            <el-form 
+            :inline="true" :model="formInline" class="demo-form-inline search-form">
                 <el-form-item label="直播名称" style="width:40% ;" size="medium">
                     <el-input v-model="formInline.liveName" placeholder="请输入直播名称"></el-input>
                 </el-form-item>
                 <el-form-item label="主播姓名" style="width:40%" size="medium">
                     <el-input v-model="formInline.anchorName" placeholder="请输入主播姓名"></el-input>
                 </el-form-item>
-                <el-form-item label="直播时间" prop="liveTimeSlot" style="width:40%">
+                <el-form-item label="直播时间" prop="liveTime" style="width:40%">
                     <el-date-picker style="width:214px" 
                     prefix-icon="el-icon-time" 
-                    v-model="formInline.time"
+                    v-model="formInline.liveTime"
                     value-format="yyyy-MM-dd HH:mm:ss"
-                    @change="timeChange(loginTime)"
+                    @change="timeChange(liveTime)"
                         type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="视频分类" style="width:40%" size="medium">
-                    <el-select v-model="formInline.liveTypeName" placeholder="活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                    <el-select v-model="formInline.liveTypeId" placeholder="活动区域">
+                        <el-option label="国海策略" value="shanghai"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="直播状态" style="width:40%" size="medium" prop="liveStatus">
                     <el-select v-model="formInline.liveStatus" placeholder="活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                        <el-option label="预告" value="0"></el-option>
+                        <el-option label="直播中" value="1"></el-option>
+                        <el-option label="已结束" value="2"></el-option>
+                        <el-option label="回放" value="3"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
@@ -43,35 +45,41 @@
             <el-button type="primary" plain round class="el-button-large" @click="handleAdd"><i
                     class="el-icon-plus"></i> 创建直播</el-button>
 
-            <el-table class="table" :data="tableData" style="width: 100%;height: 100%;"
+            <el-table
+              v-loading="loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+            class="table" :data="tableData" style="width: 100%;height: 100%;"
                 :header-cell-style="{ backgroundColor: '#F5F5F5', textAlign: 'center', }" default-expand-all="true">
-                <el-table-column type="index" label="序号">
+                <el-table-column type="index" label="序号" align="center">
                 </el-table-column>
-                <el-table-column prop="liveName" label="直播名称" width="200">
+                <el-table-column prop="liveName" label="直播名称" width="200" align="center">
                 </el-table-column>
-                <el-table-column prop="anchorName" label="主播姓名" width="100">
+                <el-table-column prop="anchorName" label="主播姓名" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="liveTypeName" label="视频分类" width="100">
+                <el-table-column prop="liveTypeName" label="视频分类" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="liveTimeSlot" label="直播时间" width="120">
+                <el-table-column prop="liveTimeSlot" label="直播时间" width="120" align="center">
                 </el-table-column>
-                <el-table-column prop="liveStatus" label="直播状态" width="120">
+                <el-table-column prop="liveStatus" label="直播状态" width="120" align="center">
                     <template slot-scope="scope">
-                        {{ formatEmployment(scope.row.liveStatus)}}
+                        <el-tag v-if="scope.row.liveStatus ==0" size="small">预告</el-tag>
+                        <el-tag v-if="scope.row.liveStatus ==1" size="small">直播中</el-tag>
+                        <el-tag v-if="scope.row.liveStatus ==2" type="info" size="small">已结束</el-tag>
+                        <el-tag v-if="scope.row.liveStatus ==3" type="danger" size="small">回放</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column prop="pvUvStr" label="观看量(PV/UV)" width="100">
+                <el-table-column prop="pvUvStr" label="观看量(PV/UV)" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="createTime" label="创建时间" width="120">
+                <el-table-column prop="createTime" label="创建时间" width="120" align="center">
                 </el-table-column>
-                <el-table-column fixed="right" label="上架状态" width="100">
-                    <template >
-                        <el-switch active-text="下架" inactive-text="上架" class="tablescope" v-model="value"
+                <el-table-column fixed="right" label="上架状态" width="100"  align="center">
+                    <template slot-scope="scope">
+                        <el-switch active-text="下架" inactive-text="上架" class="tablescope" v-model="scope.row.liveShelvesStatus" @change="changeColor(scope.row)"
                             active-color="#437df3" inactive-color="#ff4949">
                         </el-switch>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="操作" width="180">
+                <el-table-column fixed="right" label="操作" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button type="primary"
                             size="small"  @click="handleEdit(scope.row)">
@@ -84,7 +92,7 @@
             </el-table>
             <div class="block">
                 <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
-                    :current-page="current" :page-sizes="[10, 20, 30, 40,50]" :page-size="pageSize"
+                    :current-page="currPage" :page-sizes="[10, 20, 30, 40,50]" :page-size="pageSize"
                     layout="total, sizes, prev, pager, next, jumper" :total="total" background>
                 </el-pagination>
             </div>
@@ -199,7 +207,7 @@
 :deep .el-table__body-wrapper::-webkit-scrollbar {
     //    display: none;
     width: 8px !important;
-    height: 8px !important;
+        height: 8px !important;
 }
 
 :deep .el-table__body-wrapper::-webkit-scrollbar-thumb {
@@ -283,6 +291,8 @@ export default {
     data () {
         
         return {
+            live:1,
+            loading: true,
             total:'',
             radio: '1',
             dialogFormVisible: false,
@@ -322,14 +332,38 @@ export default {
         this.pvuv()
     },
     methods: {
-        formatEmployment (type) {
-            const map = {
-                0: '预告',
-                1: '直播中',
-                2: '已结束',
-                3: '回放'
+        changeColor (row) {
+            // this.liveShelvesStatus=!this.liveShelvesStatus
+            if (row.liveShelvesStatus) {
+                this.live =1
+            } else {
+                this.live = 0
             }
-            return map[type]
+            this.axios({
+                method: 'PUT',
+                url: '/tg-gateway/tg-mvp-live/mvpLive/shelvesStatus',
+                data: {
+                    id: row.id,
+                    liveShelvesStatus: this.live
+                }
+
+            }).then((res) => {
+                if (res.data.code == 0) {
+                    console.log("上架下架"+res);
+                    if (this.live) {
+                        this.submitForm()
+                        this.$message.success("上架成功")
+                    } else {
+                        this.$message.success("下架成功")
+                        this.submitForm()
+                    }
+                    
+                } else {
+                    this.$message.error(res.data.msg)
+                    console.log(ruleForm);
+                }
+            })
+           
         },
         pvuv () {
             this.axios({
@@ -338,7 +372,6 @@ export default {
                
             }).then((res) => {
                 if (res.data.code == 0) {
-                    console.log(res);
                     this.pv = res.data.data.pv,
                    this.uv=res.data.data.uv
                 } else {
@@ -354,31 +387,33 @@ export default {
             this.dialogFormVisible = true
         },
         //将时间分开成两组
-        timeChange (loginTime) {
-            this.formInline.loginTimeBegin = loginTime[0],
-                this.formInline.loginTimeEnd = loginTime[1],
-                console.log(this.formInline.loginTimeBegin);
-            console.log(this.formInline.loginTimeEnd);
+        timeChange (liveTime) {
+            this.formInline.startTimeStr = liveTime[0],
+                this.formInline.endTimeStr = liveTime[1]
+            console.log(this.formInline.startTimeStr);
         },
         submitForm (formName) {
             this.axios({
                 method: 'post',
                 url: '/tg-gateway/tg-mvp-live/mvpLive/list',
                 data: {
-                    currPage: this.currPage,
+                    current: this.currPage,
                     size: this.pageSize,
-                    // startTimeStr: this.formInline.startTimeStr,
-                    // endTimeStr:this.formInline.endTimeStr
-                    
+                    startTimeStr: this.formInline.startTimeStr,
+                    endTimeStr:this.formInline.endTimeStr,
+                    anchorName: this.formInline.anchorName,
+                    liveName: this.formInline.liveName,
+                    liveStatus: this.formInline.liveStatus,
+                    liveTypeId: this.formInline.liveTypeId,
+                    liveTime: this.formInline.liveTime
                 },
             }).then((res) => {
                 if (res.data.code == 0) {
-                    console.log(res);
+                    this.loading = false,
                     this.tableData = res.data.rows
                     this.total = res.data.total
                 } else {
                     this.$message.error(res.data.msg)
-                    console.log(ruleForm);
                 }
             })
 

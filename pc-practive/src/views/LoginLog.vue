@@ -18,7 +18,10 @@
         <el-button @click="resetForm('formInline')"><i class="el-icon-refresh"></i> 重置</el-button>
     </el-form-item>
 </el-form>
-      <el-table :data="tableData" :header-cell-style="{ background: '#F5F5F5', padding: '12px 0px', textAlign: 'center' }">
+      <el-table 
+      v-loading="loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+      :data="tableData" :header-cell-style="{ background: '#F5F5F5', padding: '12px 0px', textAlign: 'center' }">
         <el-table-column  type="index" label="序号" align="center">
         </el-table-column>
         <el-table-column prop="infoId" label="访问ID" align="center">
@@ -74,6 +77,7 @@
     data() {
 
           return {
+              loading: true,
               loginTime:'',
               total:'',
           tableData:'',
@@ -111,6 +115,7 @@
                 },
             }).then((res) => {
                 if (res.data.code == 0) {
+                    this.loading = false,
                     console.log(res);
                     this.tableData = res.data.data
                     this.total = res.data.pageResult.total

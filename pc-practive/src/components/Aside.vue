@@ -45,6 +45,9 @@
 /* .template{
     padding: 0;
 } */
+ .el-submenu__title.is-active {
+    background-color: rgb(231, 235, 240) !important;
+}
 </style>
 <script>
 

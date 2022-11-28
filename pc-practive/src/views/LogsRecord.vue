@@ -14,17 +14,22 @@
             </el-form-item>
             <el-form-item label="操作类型：">
                 <el-select style="width: 200px;" v-model="formInline.businessType" placeholder="请输入操作类型">
-                    <el-option label="区域一" value="shanghai"></el-option>
-                    <el-option label="区域二" value="beijing"></el-option>
+                    <el-option label="新增" value="1"></el-option>
+                    <el-option label="修改" value="2"></el-option>
+                    <el-option label="删除" value="3"></el-option>
+                    <el-option label="其他" value="4"></el-option>
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="submitForm('formInline')"><i class="el-icon-search"></i> 提交
+                <el-button type="primary" @click="submitForm('formInline')"><i class="el-icon-search"></i> 查询
                 </el-button>
                 <el-button @click="resetForm('formInline')"><i class="el-icon-refresh"></i> 重置</el-button>
             </el-form-item>
         </el-form>
-        <el-table :data="tableData" :header-cell-style="{ background: '#F5F5F5', padding: '12px 0px', textAlign: 'center' }">
+        <el-table 
+        v-loading="loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+        :data="tableData" :header-cell-style="{ background: '#F5F5F5', padding: '12px 0px', textAlign: 'center' }">
             <el-table-column type="index" label="序号" align="center">
             </el-table-column>
             <el-table-column prop="operContext" label="日志内容" align="center">
@@ -81,6 +86,7 @@
 export default {
     data () {
         return {
+            loading: true,
             loginTime:'',
             tableData:'',//一共有多少条
             formInline: {
@@ -123,12 +129,14 @@ export default {
                 data: {
                     current: this.pageNum,
                     size: this.pageSize,
-                    // loginName: this.formInline.loginName,
-                    // loginTimeBegin: this.formInline.loginTimeBegin,
-                    // loginTimeEnd: this.formInline.loginTimeEnd
+                    operName: this.formInline.operName,
+                    loginTimeBegin: this.formInline.loginTimeBegin,
+                    loginTimeEnd: this.formInline.loginTimeEnd,
+                    businessType: this.formInline.businessType
                 },
             }).then((res) => {
                 if (res.data.code == 0) {
+                    this.loading=false,
                     console.log(res);
                     this.tableData = res.data.data
                     this.total = res.data.pageResult.total

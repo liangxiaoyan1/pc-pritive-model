@@ -19,21 +19,25 @@
                     <el-input v-model="formInline.anchorName" placeholder="请输入产品名称/编号"></el-input>
                 </el-form-item>
                 <el-form-item label="分配状态" style="width:40%" size="medium">
-                    <el-select v-model="formInline.liveTypeName" placeholder="活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                    <el-select v-model="formInline.assignStatus" placeholder="活动区域">
+                        <el-option label="已分配" value="1"></el-option>
+                        <el-option label="不限" ></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="服务状态" style="width:40%" size="medium">
-                    <el-select v-model="formInline.region" placeholder="活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                    <el-select v-model="formInline.serveStatus" placeholder="活动区域">
+                        <el-option label="不限" ></el-option>
+                        <el-option label="正常" value="1"></el-option>
+                        <el-option label="过期" value="-1"></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="审核状态" style="width:40%" size="medium">
-                    <el-select v-model="formInline.region" placeholder="活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
+                    <el-select v-model="formInline.auditStatus" placeholder="活动区域">
+                        <el-option label="不限" ></el-option>
+                        <el-option label="审核驳回" value="-1"></el-option>
+                        <el-option label="审核通过" value="1"></el-option>
+                        <el-option label="待审核" value="0"></el-option>
+
                     </el-select>
                 </el-form-item>
                 <el-form-item label="签约时间" prop="time">
@@ -43,18 +47,17 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button @click="resetForm('formInline')" round>重置</el-button>
-                    <el-button type="primary" @click="onSubmit" round>查询</el-button>
+                    <el-button type="primary" @click="submitForm('formInline')" round>查询</el-button>
                 </el-form-item>
             </el-form>
         </el-card>
         <el-card class="box-card">
-            <p class="conten-title">咨询列表&nbsp;&nbsp;</p><span class="item">共查询到&nbsp;<b
-                    class="sg">13</b>数据</span>
-
-            <el-button type="primary" plain round class="el-button-large" @click="handleAdd"><i
-                    class="el-icon-plus"></i> 创建直播</el-button>
-
-            <el-table class="table" :data="tableData" style="width: 100%;height: 100%;"
+            <p class="conten-title">咨询列表&nbsp;&nbsp;</p><span class="item">共查询到<span
+                    class="sg">{{ total }}</span>数据</span>
+            <el-table 
+            v-loading="loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)"
+            class="table" :data="tableData" style="width: 100%;height: 100%;"
                 :header-cell-style="{ backgroundColor: '#F5F5F5', textAlign: 'center', }" default-expand-all="true">
                 <el-table-column type="index" label="序号" align="center">
                 </el-table-column>
@@ -75,9 +78,9 @@
                 </el-table-column>
                 <el-table-column prop="adviserDeptName" label="所属营业部" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="createTime" label="总部服务投顾" width="100" align="center">
+                <el-table-column prop="hqAdviserName" label="总部服务投顾" width="100" align="center">
                 </el-table-column>
-                <el-table-column prop="address" label="所属营业部" width="120" align="center">
+                <el-table-column prop="hqAdviserDeptName" label="所属营业部" width="120" align="center">
                 </el-table-column>
                 <el-table-column prop="assignStatus" label="分配状态" width="100" align="center">
                     <template slot-scope="scope">
@@ -101,8 +104,8 @@
                 <el-table-column prop="auditTime" label="审核日期" width="160" align="center">
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="100" align="center">
-                    <template slot-scope="">
-                        <el-button type="text" size="small">
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="handleEdit(scope.row)">
                             编辑
                         </el-button>
                         <el-button size="small" @click="drop" class="mr-5" type="text">分配
@@ -111,67 +114,36 @@
                 </el-table-column>
             </el-table>
             <div class="block">
-                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="pageNum"
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="current"
                     :page-sizes="[10, 20, 30, 40,50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
                     :total="total" background>
                 </el-pagination>
             </div>
             <!-- 编辑信息弹窗 -->
-            <el-dialog title="编辑" :visible.sync="dialogFormVisible" width="700px">
+            <el-dialog title="服务分配" :visible.sync="dialogFormVisible" width="700px">
                 <el-form :model="form" size="mini" label-width="100px" :rules="rules" ref="form" class="dialog-form">
-                    <el-form-item label="直播名称：" prop="liveName">
-                        <el-input type="text" placeholder="请输入" v-model="form.liveName" maxlength="15" show-word-limit>
+                <el-descriptions title="客户信息" colon="false" :column="2" >
+                    <el-descriptions-item label="姓名">{{ form.clientName }}</el-descriptions-item>
+                    <el-descriptions-item label="资金账号">{{ form.clientId }}</el-descriptions-item>
+                    <el-descriptions-item label="手机号">{{form.mobile}}</el-descriptions-item>
+                    <el-descriptions-item label="签约产品">{{form.prodName}}/{{form.prodCode}}</el-descriptions-item>
+                <el-descriptions-item label="签约日期">{{ form.entrustDate }}</el-descriptions-item>
+                <el-descriptions-item label="服务周期">{{ form.beginDate }}至{{ form.endDate }}</el-descriptions-item>
+                </el-descriptions>
+               
+                    <el-form-item label="营业部服务投顾" prop="adviserName" >
+                        <el-input type="text" placeholder="请输入姓名" v-model="form.adviserName" style="width:250px">
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="主播姓名：" prop="anchorName">
-                        <el-input type="text" placeholder="请输入" v-model="form.anchorName" maxlength="8" show-word-limit>
+                    <el-form-item label="总部服务投顾" prop="hqAdviserName">
+                        <el-input type="text" placeholder="请输入姓名" v-model="form.hqAdviserName" style="width:250px">
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="视频分类：" prop="liveTypeName">
-                        <el-select v-model="formInline.liveTypeName" placeholder="请选择">
-                            <el-option label="区域一" value="shanghai"></el-option>
-                            <el-option label="区域二" value="beijing"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="直播分类：" prop="liveTypeName">
-                        <el-select v-model="formInline.liveTypeName" placeholder="请选择">
-                            <el-option label="区域一" value="shanghai"></el-option>
-                            <el-option label="区域二" value="beijing"></el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="视频封面：" prop="liveTypeName">
-                        <el-upload class="upload-demo" drag action="https://jsonplaceholder.typicode.com/posts/"
-                            multiple>
-                            <i class="el-icon-upload" style="color:#069ffe;"></i>
-                            <div class="el-upload__text">建议上传尺寸为1300*700</div>
-                        </el-upload>
-                    </el-form-item>
-                    <el-form-item label="直播时间：" prop="liveTimeSlot">
-                        <el-date-picker prefix-icon="el-icon-time" v-model="formInline.liveTimeSlot" type="daterange"
-                            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
-                        </el-date-picker>
-                    </el-form-item>
-                    <el-form-item label="直播地址" prop="liveName">
-                        <el-input v-model="formInline.liveName" placeholder="请输入"></el-input>
-                    </el-form-item>
-
-                    <el-form-item label="是否推荐：">
-
-                        <el-radio v-model="radio" label="1">是</el-radio>
-                        <el-input v-model="formInline.liveName" placeholder="请输入权重1-100"></el-input>
-                        <el-radio v-model="radio" label="2">否</el-radio>
-
-                    </el-form-item>
-                    <el-form-item label="备注：">
-                        <el-input type="textarea" rows="5" placeholder="请输入" v-model="textarea" maxlength="100"
-                            show-word-limit>
-                        </el-input>
-                    </el-form-item>
-
                 </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button type="primary" @click="onSubmit('userForm')">保存</el-button>
-                    <el-button @click="resetForm('form')">重置</el-button>
+                    <el-button @click="resetForm('form')">取消</el-button>
+                    <el-button type="primary" @click="onSubmit('userForm')">提交审核</el-button>
+                    
 
                 </div>
             </el-dialog>
@@ -218,26 +190,6 @@
     display: inline-block;
 }
 
-:deep .el-table__body-wrapper::-webkit-scrollbar {
-    //    display: none;
-    width: 8px !important;
-    height: 8px !important;
-}
-
-:deep .el-table__body-wrapper::-webkit-scrollbar-thumb {
-    background: #c2c2c2 !important;
-    border-radius: 4px !important;
-}
-
-:deep .el-table__body-wrapper::-webkit-scrollbar-track {
-    background: #ffffff !important;
-
-}
-
-:deep .el-table__fixed-right {
-    height: 100% !important; //设置高优先，以覆盖内联样式
-}
-
 .item {
     color: #969799;
     font-size: 14px;
@@ -252,74 +204,23 @@
     }
 }
 
-::v-deep .el-switch__core {
-    width: 50px !important;
-    height: 20px;
-    border-radius: 10px;
-    border: none;
-}
-
-::v-deep .el-switch__core::after {
-    width: 15px;
-    height: 15px;
-    top: 2px;
-}
-
-::v-deep .el-switch.is-checked .el-switch__core::after {
-    margin-left: -21px;
-}
-
-/*关闭时文字位置设置*/
-::v-deep .el-switch__label--right {
-    position: absolute;
-    z-index: 1;
-    right: 6px;
-    margin-left: 0px;
-    color: rgba(255, 255, 255, 0.9019607843137255);
-
-    span {
-        font-size: 12px;
-    }
-}
-
-/* 激活时另一个文字消失 */
-::v-deep .el-switch__label.is-active {
-    display: none;
-}
-
-/*开启时文字位置设置*/
-::v-deep .el-switch__label--left {
-    position: absolute;
-    z-index: 1;
-    left: 5px;
-    margin-right: 0px;
-    color: rgba(255, 255, 255, 0.9019607843137255);
-
-    span {
-        font-size: 12px;
-    }
-}
 </style>
 <script>
 export default {
     data () {
        
         return {
+            loading: true,
             total:'',
             radio: '1',
             dialogFormVisible: false,
             tableData: '',//数据
-            formInline: {
-                useusernamer: '',
-                time: ''
-            },
             value: true,
             current: 1,//第几页面
             pageSize: 10,//每一个页面有多少条数
             table: '',
             formInline: {
-                user: '',
-                region: ''
+              
             },
             form: {
                 liveName: ''
@@ -365,15 +266,19 @@ export default {
                 data: {
                     current: this.current,
                     size: this.pageSize,
-                    // startTimeStr: this.formInline.startTimeStr,
-                    // endTimeStr:this.formInline.endTimeStr
-
+                    assignStatus: this.formInline.assignStatus,
+                    auditStatus: this.formInline.auditStatus,
+                    client: this.formInline.client,
+                    clientMobile: this.formInline.clientMobile,
+                    product: this.formInline.product,
+                    serveStatus: this.formInline.serveStatus
                 },
             }).then((res) => {
                 if (res.data.code == 0) {
+                    this.loading = false,
                     console.log(res);
                     this.tableData = res.data.data
-                    this.total = res.data.data,length
+                    this.total = res.data.pageResult.total
                 } else {
                     this.$message.error(res.data.msg)
                     console.log(ruleForm);
@@ -386,10 +291,14 @@ export default {
         },
 
         handleSizeChange (val) {
+            this.pageSize = val
             console.log(`每页 ${val} 条`);
+            this.submitForm()
         },
         handleCurrentChange (val) {
+            this.current = val
             console.log(`当前页: ${val}`);
+            this.submitForm()
         },
         drop () {
             this.$alert('是否确定删除该数据!', '提示~', {
@@ -402,8 +311,9 @@ export default {
                 }
             });
         },
-        // 添加
-        handleAdd () {
+        // 编辑
+        handleEdit (row) {
+            this.form = row
             this.dialogFormVisible = true
         },
 

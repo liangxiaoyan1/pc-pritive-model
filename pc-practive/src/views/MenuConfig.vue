@@ -1,9 +1,9 @@
 <template>
     <div class="about" style="background: rgb(255, 255, 255);">
     <el-button type="primary"  @click="drawer = true" ><i class="el-icon-circle-plus-outline"></i>  新增</el-button>
-        <el-table :data="tableData" label="rtl" style="width: 100%;margin-bottom: 20px;" row-key="id"
+        <el-table   :data="tableData" label="rtl" style="width: 100%;margin-bottom: 20px;" row-key="id"
             :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
-            <el-table-column prop="menuName" label="菜单名称" width="180">
+            <el-table-column prop="menuName" label="菜单名称" width="180" >
             </el-table-column>
             <el-table-column prop="url" label="路径"  width="180">
             </el-table-column>
@@ -15,12 +15,12 @@
                     </el-button>
                     <el-button  @click="drawer = true" label="rtl" type="primary"  size="mini"  class="mr-5">详情
                     </el-button>
-                    <el-button  size="mini" @click="drop" class="mr-5">删除 <i class="el-icon-edit"></i>
+                    <el-button  size="mini" @click="drop" class="mr-5">删除
                     </el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-drawer title="我是标题" :visible.sync="drawer" :direction="direction" :before-close="handleClose" size="50%">
+        <el-drawer title="我是标题" :visible.sync="drawer" :direction="direction" size="50%">
             <el-card class="box-card" style="width:90%; margin: 20px;">
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
                 <el-form-item label="菜单类型：" prop="menu">
@@ -51,12 +51,6 @@
             </el-form>
             </el-card>
         </el-drawer>
-        <div class="block">
-            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="current"
-                :page-sizes="[2, 5, 10, 20]" :page-size="size" layout="total, sizes, prev, pager, next, jumper"
-                :total="tableData.length" background>
-            </el-pagination>
-        </div>
     </div>
 </template>
 <style scoped lang="scss">
@@ -94,73 +88,73 @@ export default {
         return {
             drawer: false,
             direction: 'rtl',
-            tableData: [{
-                id: 1,
-                menuName: '系统管理',
-                url: '',
-                orderNum: '0',
-                children: [{
-                    id: 31,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }, {
-                    id: 32,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }]
+            tableData:'',
+            //     id: 1,
+            //     menuName: '系统管理',
+            //     url: '',
+            //     orderNum: '0',
+            //     children: [{
+            //         id: 31,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }, {
+            //         id: 32,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }]
 
-            }, {
-                id: 2,
-                menuName: '系统管理',
-                url: '',
-                orderNum: '0',
-                children: [{
-                    id: 33,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }, {
-                    id: 34,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }]
-            }, {
-                id: 3,
-                menuName: '系统管理',
-                url: '',
-                orderNum: '0',
-                children: [{
-                    id: 35,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
+            // }, {
+            //     id: 2,
+            //     menuName: '系统管理',
+            //     url: '',
+            //     orderNum: '0',
+            //     children: [{
+            //         id: 33,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }, {
+            //         id: 34,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }]
+            // }, {
+            //     id: 3,
+            //     menuName: '系统管理',
+            //     url: '',
+            //     orderNum: '0',
+            //     children: [{
+            //         id: 35,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
                     
-                }, {
-                    id: 36,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }]
-            }, {
-                id: 4,
-                menuName: '系统管理',
-                url: '',
-                orderNum: '0',
-                children: [{
-                    id: 37,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }, {
-                    id: 38,
-                    menuName: '系统管理',
-                    url: '',
-                    orderNum: '0',
-                }]
-            }],
+            //     }, {
+            //         id: 36,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }]
+            // }, {
+            //     id: 4,
+            //     menuName: '系统管理',
+            //     url: '',
+            //     orderNum: '0',
+            //     children: [{
+            //         id: 37,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }, {
+            //         id: 38,
+            //         menuName: '系统管理',
+            //         url: '',
+            //         orderNum: '0',
+            //     }]
+            // }],
             formInline: {
                 useusernamer: '',
                 time: ''
@@ -191,16 +185,25 @@ export default {
             }
         }
     },
+    created () {
+        this.submitForm()
+    },
     methods: {
-        submitForm (formName) {
-            this.$refs[formName].validate((valid) => {
-                if (valid) {
-                    alert('submit!');
-                } else {
-                    console.log('error submit!!');
-                    return false;
-                }
-            });
+        submitForm (data) {
+            this.axios({
+                method: 'post',
+                url: '/tg-gateway/tg-admin/system/menu/listAllByTree',
+                data
+            }).then((res) => {
+                console.log(res);
+                // if (res.data.code == 0) {
+                //     console.log(res);
+                //     // this.tableData = res.data.data
+                // } else {
+                //     this.$message.error(res.data.msg)
+                   
+                // }
+            })
         },
         resetForm (formName) {
             this.$refs[formName].resetFields();
